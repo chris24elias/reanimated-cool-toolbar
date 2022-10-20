@@ -1,11 +1,5 @@
 import React, { PropsWithChildren } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Alert,
-  useWindowDimensions,
-} from "react-native";
+import { View, Text, useWindowDimensions, StyleSheet } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Extrapolate,
@@ -17,107 +11,19 @@ import Animated, {
   withSpring,
   WithSpringConfig,
   withTiming,
-  WithTimingConfig,
 } from "react-native-reanimated";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { TOOLS } from "./utils";
 
 export type IRootProps = {};
 
-const TOOLS = [
-  {
-    id: 1,
-    icon: "pencil",
-    color: "#1abc9c",
-    name: "draw",
-  },
-  {
-    id: 2,
-    icon: "brush",
-    color: "#9b59b6",
-    name: "lasso",
-  },
-  {
-    id: 3,
-    icon: "ios-chatbox-ellipses-outline",
-    color: "#e74c3c",
-    name: "comment",
-  },
-  {
-    id: 4,
-    icon: "color-wand",
-    color: "#f1c40f",
-    name: "picker",
-  },
-  {
-    id: 5,
-    icon: "arrow-undo",
-    color: "#6c5ce7",
-    name: "rotate",
-  },
-  {
-    id: 6,
-    icon: "",
-    color: "#d63031",
-  },
-  {
-    id: 7,
-    icon: "",
-    color: "#81ecec",
-  },
-  {
-    id: 8,
-    icon: "",
-    color: "#55efc4",
-  },
-  {
-    id: 9,
-    icon: "",
-  },
-  {
-    id: 10,
-    icon: "",
-  },
-  {
-    id: 11,
-    icon: "",
-  },
-  {
-    id: 12,
-    icon: "",
-  },
-  {
-    id: 13,
-    icon: "",
-  },
-  {
-    id: 14,
-    icon: "",
-  },
-  {
-    id: 15,
-    icon: "",
-  },
-  {
-    id: 16,
-    icon: "",
-  },
-  {
-    id: 17,
-    icon: "",
-  },
-  {
-    id: 18,
-    icon: "",
-  },
-];
 const BOX_SIZE_RAW = 50;
 const MARGIN = 5;
 const BOX_SIZE = BOX_SIZE_RAW + MARGIN * 2;
 const TOP_OFFSET = 80;
-const MAX = BOX_SIZE * TOOLS.length + 80;
-
-// const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+const TOOL_PADDING_LEFT = 13;
+const TOOL_ICON_SIZE = 25;
 
 const Root = ({}: PropsWithChildren<IRootProps>) => {
   const y = useSharedValue(0);
@@ -152,73 +58,32 @@ const Root = ({}: PropsWithChildren<IRootProps>) => {
   const gesture = Gesture.Simultaneous(panGesture, longPressGesture);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
-      <View
-        style={{
-          height: "50%",
-          width: 64,
-          position: "absolute",
-          zIndex: -1,
-          backgroundColor: "white",
-          shadowColor: "#000000",
-          shadowOffset: {
-            height: 2,
-            width: 0,
-          },
-          shadowOpacity: 0.3,
-          shadowRadius: 4,
-          top: TOP_OFFSET,
-          left: 40,
-          borderRadius: 12,
-        }}
-      />
-      <GestureDetector gesture={gesture}>
-        <Animated.View
-          style={{
-            zIndex: 10,
-            width: "100%",
-            height: "50%",
-            top: TOP_OFFSET,
-            left: 20,
-            overflow: "hidden",
-            paddingLeft: 20,
-          }}
-        >
-          <Animated.View
-            style={{
-              backgroundColor: "white",
-              width: 64,
-              borderRadius: 12,
-            }}
+    <View style={styles.container}>
+      <View style={styles.shadowContainer} />
+      <Animated.View style={styles.toolbarContainer}>
+        <GestureDetector gesture={gesture}>
+          <Animated.ScrollView
+            style={styles.scrollviewContainer}
+            contentContainerStyle={styles.scrollviewContentContainer}
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={scrollHandler}
           >
-            <Animated.ScrollView
-              style={{
-                overflow: "visible",
-              }}
-              contentContainerStyle={{
-                // alignItems: "center",
-                paddingBottom: MARGIN * 2,
-              }}
-              showsVerticalScrollIndicator={false}
-              scrollEventThrottle={16}
-              onScroll={scrollHandler}
-            >
-              {TOOLS.map((t, index) => {
-                return (
-                  <Tool
-                    key={`tool_${t.id}`}
-                    index={index}
-                    y={y}
-                    longPressing={longPressing}
-                    pointerY={pointerY}
-                    t={t}
-                  />
-                );
-              })}
-            </Animated.ScrollView>
-          </Animated.View>
-        </Animated.View>
-      </GestureDetector>
+            {TOOLS.map((t, index) => {
+              return (
+                <Tool
+                  key={`tool_${t.id}`}
+                  index={index}
+                  y={y}
+                  longPressing={longPressing}
+                  pointerY={pointerY}
+                  t={t}
+                />
+              );
+            })}
+          </Animated.ScrollView>
+        </GestureDetector>
+      </Animated.View>
     </View>
   );
 };
@@ -230,14 +95,14 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
   const scale = useSharedValue(1);
   const shadowOpacity = useSharedValue(0);
   const textOpacity = useSharedValue(0);
-  const springConfig: WithSpringConfig = {
-    damping: 15,
-    mass: 0.6,
-    stiffness: 120,
-  };
 
   const scaleUp = () => {
     "worklet";
+    const springConfig: WithSpringConfig = {
+      damping: 15,
+      mass: 0.6,
+      stiffness: 120,
+    };
     boxWidth.value = withSpring(BOX_SIZE * 2.5, springConfig);
     left.value = withSpring(85, springConfig);
     scale.value = withSpring(1.25, springConfig);
@@ -247,6 +112,11 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
 
   const scaleDown = () => {
     "worklet";
+    const springConfig: WithSpringConfig = {
+      damping: 15,
+      mass: 1.2,
+      stiffness: 100,
+    };
     boxWidth.value = withSpring(BOX_SIZE_RAW, springConfig);
     left.value = withSpring(0, springConfig);
     scale.value = withSpring(1, springConfig);
@@ -257,7 +127,7 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
   useAnimatedReaction(
     () => {
       const position = index * BOX_SIZE - y.value;
-      const py = pointerY.value - 20;
+      const py = pointerY.value;
       if (py >= position && py <= position + BOX_SIZE && longPressing.value) {
         return 1;
       } else {
@@ -265,7 +135,6 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
       }
     },
     (result) => {
-      //
       if (result) {
         scaleUp();
       } else {
@@ -277,12 +146,11 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
 
   useAnimatedReaction(
     () => {
-      const h = height / 2 - 20;
-      const paddingTop = 0;
-      const isDisappearing = -BOX_SIZE - paddingTop;
-      const isTop = 0 - paddingTop;
-      const isBottom = h - BOX_SIZE - paddingTop;
-      const isAppearing = h - paddingTop;
+      const h = height / 2 - 10;
+      const isDisappearing = -BOX_SIZE;
+      const isTop = 0;
+      const isBottom = h - BOX_SIZE;
+      const isAppearing = h;
       const position = index * BOX_SIZE - y.value;
 
       const p = interpolate(
@@ -299,11 +167,11 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
       }
 
       if (result === -1) {
-        scale.value = 0.4;
+        scale.value = 0.3;
       }
 
       if (result === 1) {
-        scale.value = 0.4;
+        scale.value = 0.3;
       }
     }
   ),
@@ -311,30 +179,20 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
 
   const style = useAnimatedStyle(() => {
     const max = 658;
-    const ty = interpolate(y.value, [-100, 0, max], [7 * index, 10, 10]);
+    const ty = interpolate(
+      y.value,
+      [-50, 0, max, max + 100],
+      [7 * index, 10, 10, -4 * index]
+    );
 
     return {
-      height: BOX_SIZE_RAW,
       width: boxWidth.value,
-      //   left: left.value,
-      backgroundColor: t.color || "red",
-      borderRadius: 12,
-      zIndex: 100,
-      //   marginLeft: 7,
-      alignSelf: "center",
-      marginVertical: MARGIN,
       transform: [
         { scale: scale.value },
         { translateY: ty },
         { translateX: left.value },
       ],
-      shadowColor: "#000000",
-      shadowOffset: {
-        height: 2,
-        width: 0,
-      },
       shadowOpacity: shadowOpacity.value,
-      shadowRadius: 4,
     };
   });
 
@@ -342,24 +200,41 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
     return {
       opacity: textOpacity.value,
       position: "absolute",
-      left: 13 + 25 + 10,
+      left: TOOL_PADDING_LEFT + TOOL_ICON_SIZE + 10,
     };
   });
 
   return (
-    <Animated.View style={style}>
+    <Animated.View
+      style={[
+        {
+          height: BOX_SIZE_RAW,
+          backgroundColor: t.color || "red",
+          borderRadius: 12,
+          zIndex: 100,
+          alignSelf: "center",
+          marginVertical: MARGIN,
+          shadowColor: "#000000",
+          shadowOffset: {
+            height: 2,
+            width: 0,
+          },
+          shadowRadius: 4,
+        },
+        style,
+      ]}
+    >
       <View
         style={{
           flexDirection: "row",
           flex: 1,
-          //   justifyContent: "center",
           alignItems: "center",
-          paddingLeft: 13,
+          paddingLeft: TOOL_PADDING_LEFT,
         }}
       >
-        <Ionicons color="white" name={t.icon || "code"} size={24} />
+        <Ionicons color="white" name={t.icon || "code"} size={TOOL_ICON_SIZE} />
         <Animated.View style={textStyle}>
-          <Text style={{ color: "white", fontSize: 20 }}>{t.name || ""}</Text>
+          <Text style={styles.toolText}>{t.name || ""}</Text>
         </Animated.View>
       </View>
     </Animated.View>
@@ -367,3 +242,50 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
 };
 
 export { Root };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  shadowContainer: {
+    height: "50%",
+    width: 64,
+    position: "absolute",
+    zIndex: -1,
+    backgroundColor: "white",
+    shadowColor: "#000000",
+    shadowOffset: {
+      height: 2,
+      width: 0,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    top: TOP_OFFSET,
+    left: 40,
+    borderRadius: 12,
+  },
+  toolbarContainer: {
+    zIndex: 10,
+    width: "100%",
+    height: "50%",
+    top: TOP_OFFSET,
+    left: 20,
+    overflow: "hidden",
+    paddingLeft: 20,
+  },
+  scrollviewContainer: {
+    overflow: "visible",
+    backgroundColor: "white",
+    width: 64,
+    borderRadius: 12,
+  },
+  scrollviewContentContainer: {
+    paddingBottom: 20,
+  },
+  toolText: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "700",
+  },
+});

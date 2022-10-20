@@ -1,0 +1,98 @@
+export const TOOLS = [
+  {
+    id: 1,
+    icon: "pencil",
+    color: "#1abc9c",
+    name: "Draw",
+  },
+  {
+    id: 2,
+    icon: "brush",
+    color: "#9b59b6",
+    name: "Lasso",
+  },
+  {
+    id: 3,
+    icon: "ios-chatbox-ellipses-outline",
+    color: "#e74c3c",
+    name: "Comment",
+  },
+  {
+    id: 4,
+    icon: "color-wand",
+    color: "#f1c40f",
+    name: "Picker",
+  },
+  {
+    id: 5,
+    icon: "arrow-undo",
+    color: "#6c5ce7",
+    name: "Rotate",
+  },
+  {
+    id: 6,
+    icon: "pencil",
+    color: "#d63031",
+    name: "Rotate",
+  },
+  {
+    id: 7,
+    icon: "brush",
+    color: "#81ecec",
+    name: "Rotate",
+  },
+  {
+    id: 8,
+    icon: "arrow-redo",
+    color: "#55efc4",
+    name: "Rotate",
+  },
+  {
+    id: 9,
+    icon: "pencil",
+    color: "#1abc9c",
+    name: "Draw",
+  },
+  {
+    id: 10,
+    icon: "brush",
+    color: "#9b59b6",
+    name: "Lasso",
+  },
+  {
+    id: 11,
+    icon: "ios-chatbox-ellipses-outline",
+    color: "#e74c3c",
+    name: "Comment",
+  },
+  {
+    id: 12,
+    icon: "color-wand",
+    color: "#f1c40f",
+    name: "Picker",
+  },
+  {
+    id: 13,
+    icon: "arrow-undo",
+    color: "#6c5ce7",
+    name: "Rotate",
+  },
+  {
+    id: 14,
+    icon: "pencil",
+    color: "#d63031",
+    name: "Rotate",
+  },
+  {
+    id: 15,
+    icon: "brush",
+    color: "#81ecec",
+    name: "Rotate",
+  },
+  {
+    id: 16,
+    icon: "arrow-redo",
+    color: "#55efc4",
+    name: "Rotate",
+  },
+];
