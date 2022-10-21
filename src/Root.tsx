@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from "react";
-import { View, Text, useWindowDimensions, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Extrapolate,
@@ -18,12 +18,16 @@ import { TOOLS } from "./utils";
 
 export type IRootProps = {};
 
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+
+const TOOLBAR_HEIGHT = SCREEN_HEIGHT * 0.52;
 const BOX_SIZE_RAW = 50;
 const MARGIN = 5;
 const BOX_SIZE = BOX_SIZE_RAW + MARGIN * 2;
 const TOP_OFFSET = 80;
 const TOOL_PADDING_LEFT = 13;
 const TOOL_ICON_SIZE = 25;
+const SCROLLVIEW_PADDING_BOTTOM = 20;
 
 const Root = ({}: PropsWithChildren<IRootProps>) => {
   const y = useSharedValue(0);
@@ -89,7 +93,6 @@ const Root = ({}: PropsWithChildren<IRootProps>) => {
 };
 
 const Tool = ({ index, y, longPressing, pointerY, t }) => {
-  const { height } = useWindowDimensions();
   const boxWidth = useSharedValue(BOX_SIZE_RAW);
   const left = useSharedValue(0);
   const scale = useSharedValue(1);
@@ -103,7 +106,11 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
       mass: 0.6,
       stiffness: 120,
     };
-    boxWidth.value = withSpring(BOX_SIZE * 2.5, springConfig);
+
+    boxWidth.value = withSpring(
+      BOX_SIZE + MARGIN + t.name.length * 12,
+      springConfig
+    );
     left.value = withSpring(85, springConfig);
     scale.value = withSpring(1.25, springConfig);
     shadowOpacity.value = withTiming(0.4);
@@ -146,7 +153,7 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
 
   useAnimatedReaction(
     () => {
-      const h = height / 2 - 10;
+      const h = TOOLBAR_HEIGHT - 10;
       const isDisappearing = -BOX_SIZE;
       const isTop = 0;
       const isBottom = h - BOX_SIZE;
@@ -178,7 +185,8 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
     [y];
 
   const style = useAnimatedStyle(() => {
-    const max = 658;
+    const max =
+      BOX_SIZE * TOOLS.length - TOOLBAR_HEIGHT + SCROLLVIEW_PADDING_BOTTOM;
     const ty = interpolate(
       y.value,
       [-50, 0, max, max + 100],
@@ -208,19 +216,9 @@ const Tool = ({ index, y, longPressing, pointerY, t }) => {
     <Animated.View
       style={[
         {
-          height: BOX_SIZE_RAW,
           backgroundColor: t.color || "red",
-          borderRadius: 12,
-          zIndex: 100,
-          alignSelf: "center",
-          marginVertical: MARGIN,
-          shadowColor: "#000000",
-          shadowOffset: {
-            height: 2,
-            width: 0,
-          },
-          shadowRadius: 4,
         },
+        styles.toolContainer,
         style,
       ]}
     >
@@ -249,7 +247,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   shadowContainer: {
-    height: "50%",
+    height: TOOLBAR_HEIGHT,
     width: 64,
     position: "absolute",
     zIndex: -1,
@@ -268,7 +266,7 @@ const styles = StyleSheet.create({
   toolbarContainer: {
     zIndex: 10,
     width: "100%",
-    height: "50%",
+    height: TOOLBAR_HEIGHT,
     top: TOP_OFFSET,
     left: 20,
     overflow: "hidden",
@@ -281,11 +279,24 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   scrollviewContentContainer: {
-    paddingBottom: 20,
+    paddingBottom: SCROLLVIEW_PADDING_BOTTOM,
   },
   toolText: {
     color: "white",
     fontSize: 20,
     fontWeight: "700",
+  },
+  toolContainer: {
+    height: BOX_SIZE_RAW,
+    marginVertical: MARGIN,
+    borderRadius: 12,
+    zIndex: 100,
+    alignSelf: "center",
+    shadowColor: "#000000",
+    shadowOffset: {
+      height: 2,
+      width: 0,
+    },
+    shadowRadius: 4,
   },
 });
